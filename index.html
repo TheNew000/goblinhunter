@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Goblin Hunter!!!</title>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    // Create the canvas tag with JavaScript
+    var canvas = document.createElement('canvas');
+    // Create a context for JavaScript to play inside of
+    var context = canvas.getContext('2d');
+    // Give the canvas tag some substance
+    canvas.width = 512;
+    canvas.height = 480;
+    console.dir(canvas);
+
+    // Put the Canvas in the DOM
+    document.body.appendChild(canvas);
+
+    var bgImage = new Image();
+    bgImage.src = "background.png";
+
+    // Hero image
+    var hero = new Image();
+    hero.src = "skeletonD.png";
+    var heroLocation = {
+        x: 100,
+        y: 100
+    }
+
+    // Scoreboard
+    var goblincount = 0;
+
+    // Zombie Image
+    var zombie = new Image();
+        zombie.src = "zombie.png";
+        var zombieLocation = {
+        x: 32 + (Math.random() * (canvas.width - 64)),
+        y: 32 + (Math.random() * (canvas.height - 64))
+        }
+
+    var zombieAppear = false;
+
+    // Goblin Image
+    var goblin = new Image();
+    goblin.src = "monster.png";
+    var goblinLocation = {
+        x: 32 + (Math.random() * (canvas.width - 64)),
+        y: 32 + (Math.random() * (canvas.height - 64))
+    }
+    // This array will hold the keycodes that are currently pressed down
+    var keysDown =[];
+    // Make the hero move!!!
+    addEventListener('keydown', function(event){
+        keysDown[event.keyCode] = true;
+    });
+
+    addEventListener('keyup', function(event){
+        delete keysDown[event.keyCode];
+    });
+
+    // function goblinMove(){
+    //     var goblinRando = Math.floor(Math.random() * 4 + 1);
+    //     if(goblinRando == 1 && goblinLocation.x < 458){
+    //         goblinLocation.x += 20;
+    //     }else if (goblinRando == 2 && goblinLocation.x > 32) {
+    //         goblinLocation.x -= 20;
+    //     }else if (goblinRando == 3 && goblinLocation.y > 383){
+    //         goblinLocation.y += 20;
+    //     }else if(goblinRando == 4 && goblinLocation.y > 32){
+    //         goblinLocation.y -= 20;
+    //     }
+    // }
+
+    // GOBLIN MOVE
+    var goblinVectorX = 0;
+    var goblinVectorY = 0;
+    var gobSpeed = 1;
+
+    setInterval(function(){
+        goblinVectorX = ((Math.ceil(Math.random()*3))-2)*gobSpeed;
+        goblinVectorY = ((Math.ceil(Math.random()*3))-2)*gobSpeed;
+    }, 300);
+
+    function goblinMove(){
+        goblinLocation.x += goblinVectorX;
+        goblinLocation.y += goblinVectorY;
+        if(goblinLocation.x < 32){
+            goblinLocation.x = 458;
+        }
+        if(goblinLocation.x > 458){
+            goblinLocation.x = 32;
+        }
+        if(goblinLocation.y < 32){
+            goblinLocation.y = 458;
+        }
+        if(goblinLocation.y > 458){
+            goblinLocation.y = 32;
+        }
+    }
+
+    // ZOMBIE Move
+    var zombieVectorX = 0;
+    var zombieVectorY = 0;
+    var zomSpeed = 1;
+
+    setInterval(function(){
+        zombieVectorX = ((Math.ceil(Math.random()*3))-2)*zomSpeed;
+        zombieVectorY = ((Math.ceil(Math.random()*3))-2)*zomSpeed;
+    }, 300);
+
+    function zombieMove(){
+        zombieLocation.x += zombieVectorX;
+        zombieLocation.y += zombieVectorY;
+        if(zombieLocation.x < 32){
+            zombieLocation.x = 458;
+        }
+        if(zombieLocation.x > 458){
+            zombieLocation.x = 32;
+        }
+        if(zombieLocation.y < 32){
+            zombieLocation.y = 458;
+        }
+        if(zombieLocation.y > 458){
+            zombieLocation.y = 32;
+        }
+    }
+
+    function update(){
+        // Move our Hero
+        if(39 in keysDown){
+            if(heroLocation.x < 458){
+            // Move him right
+            heroLocation.x += 10;
+            hero.src = "skeletonR.png";
+            }
+        }else if(37 in keysDown){
+            if(heroLocation.x > 32){
+            // Move him left
+            heroLocation.x -= 10;
+            hero.src = "skeletonL.png";
+            }
+        }else if(38 in keysDown){
+            if(heroLocation.y > 32){
+            // Move him up
+            heroLocation.y -= 10;
+            hero.src = "skeletonU.png";
+            }
+        }else if(40 in keysDown){
+            if(heroLocation.y < 416){
+            // Move him down
+            heroLocation.y += 10;
+            hero.src = "skeletonD.png";
+            }
+        }if(heroLocation.x <= (goblinLocation.x + 20 ) && heroLocation.y <= (goblinLocation.y + 20) && goblinLocation.x <= (heroLocation.x + 20) && goblinLocation.y <= (heroLocation.y + 20)){
+            ++goblincount;
+            if(goblincount % 3 === 0){
+                zombieAppear = true;
+            }
+            gobSpeed += 0.2;
+            reset();
+            console.log("Hero ran into the goblin");
+        }
+    }
+
+    function reset(){
+        goblinLocation.x = 32 + (Math.random() * (canvas.width - 64));
+        goblinLocation.y = 32 + (Math.random() * (canvas.height - 64));
+    }
+
+    function draw(){
+        goblinMove();
+        update();
+        context.drawImage(bgImage,0,0);
+        context.drawImage(hero, heroLocation.x, heroLocation.y, 50, 50);
+        context.drawImage(goblin, goblinLocation.x, goblinLocation.y);
+        if(zombieAppear == true){
+            zombieMove();
+            context.drawImage(zombie, zombieLocation.x, zombieLocation.y);
+        }
+        requestAnimationFrame(draw);
+        context.fillText("Goblin's in yer sack: " + goblincount, 15, 30);
+        context.font = '30px Verdana';
+        context.fillStyle = "rgb(250, 250, 250)";
+    }
+    draw();
+</script>
+</body>
+</html>
